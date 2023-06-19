@@ -25,6 +25,21 @@ public class IntervalEngine {
         // nothing yet
     }
 
+    public void enqueueTask(@NonNull Task task) {
+        mTasks.add(task);
+    }
+
+    public void removeTask(@NonNull Task task) {
+        mTasks.remove(task);
+    }
+
+    /**
+     * @return A copy of the task list
+     */
+    public List<Task> getTasks() {
+        return new ArrayList<>(mTasks);
+    }
+
     /**
      * Tasks further down are activated later
      * @param task the target task
@@ -35,12 +50,14 @@ public class IntervalEngine {
         }
 
         final int currentIndex = mTasks.indexOf(task);
-        if (currentIndex <= 0) {
+        final int targetIndex = currentIndex + 2;
+        final int size = mTasks.size();
+        if (targetIndex >= size) {
             return;
         }
 
-        mTasks.remove(task);
-        mTasks.add(currentIndex-1, task);
+        mTasks.add(targetIndex, task);
+        mTasks.remove(currentIndex);
     }
 
     /**
@@ -53,19 +70,20 @@ public class IntervalEngine {
         }
 
         final int currentIndex = mTasks.indexOf(task);
-        if (currentIndex >= mTasks.size()) {
+        if (currentIndex == 0) {
             return;
         }
 
-        mTasks.remove(task);
-        mTasks.add(currentIndex+1, task);
+        final int targetIndex = currentIndex - 1;
+        mTasks.add(targetIndex, task);
+        mTasks.remove(currentIndex + 1);
     }
 
     /**
      * @return The upcoming task, if any. Removes started items from the que.
      */
     @Nullable
-    public Task getNextTask() {
+    public Task pullNextTask() {
         final Task peekedTask = mTasks.peek();
         if (peekedTask == null) {
             return null;
